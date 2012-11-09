@@ -137,15 +137,35 @@ public class Project {
                                     ref = protLine.substring(0, protLine.indexOf("ref"));
                                     sequence = processSequence(br);
                                     for (begin = 0; begin < options[1].length(); begin++) {
-                                        System.out.println("BU");
                                         i = 1;
                                         for (end = begin + i; end < options[1].length() + 1; i *= 2, end += i) {
                                             //System.out.println(end);
-                                            //System.out.println(options[1].substring(seqSize, seqSize2));
                                             if (rabinKarpMatcher(sequence, options[1].substring(begin, end))) {
-                                                patternSize = options[1].substring(begin, end).length();
+                                                patternSize = options[1].substring(begin,end).length();
                                                 if (patternSize > maxPatternSize) {
                                                     maxPatternSize = patternSize;
+                                                }
+                                            } else {
+                                                if (maxPatternSize > 2) {
+                                                    for (end = maxPatternSize + 1 ; end < options[1].length() + 1 ; end++ ) {
+                                                        System.out.println(options[1].substring(begin, end));
+                                                        if (rabinKarpMatcher(sequence, options[1].substring(begin,end))) {
+                                                            patternSize = options[1].substring(begin,end).length();
+                                                            if (patternSize > maxPatternSize) {
+                                                                maxPatternSize = patternSize;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (end > options[1].length() && maxPatternSize*2 == end) {
+                                            for (end = maxPatternSize + 1 ; end < options[1].length() + 1 ; end++ ) {
+                                                if (rabinKarpMatcher(sequence, options[1].substring(begin,end))) {
+                                                    patternSize = options[1].substring(begin,end).length();
+                                                    if (patternSize > maxPatternSize) {
+                                                        maxPatternSize = patternSize;
+                                                    }
                                                 }
                                             }
                                         }
@@ -177,6 +197,7 @@ public class Project {
                             break;
                         }
                         default: {
+                            br.close();
                             return;
                         }
                     }
