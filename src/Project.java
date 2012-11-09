@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
 
 /**
  * @author Sergio Silva 55457
@@ -9,8 +10,10 @@ import java.io.FileWriter;
  */
 public class Project {
 
-    private static long _hashRPrime1 = 3;
+    private static long _hashRPrime1 = 2;
     private static long _hashRPrime2 = 96293;
+    private int tempB = 3;
+    private int tempM = 96293;
 
     /**
      * @param args the command line arguments
@@ -19,80 +22,163 @@ public class Project {
         // TODO code application logic here
         try (
                 BufferedReader inReader = new BufferedReader(new FileReader(args[1]));
-                BufferedReader br = new BufferedReader(new FileReader(args[0]));
+
                 BufferedWriter out = new BufferedWriter(new FileWriter("out.txt"))
         ) {
             String input;
             String[] options;
             while ((input = inReader.readLine()) != null) {
                 options = input.split(" ");
-                switch (options[0]) {
-                    case "N": {
-                        String protLine;
-                        String sequence;
-                        String ref;
-                        try {
-                            while ((protLine = br.readLine()) != null) {
-                                ref = protLine.substring(0, 14);
-                                sequence = processSequence(br);
-                                if (naiveMatcher(sequence, options[1])) {
-                                    out.write(ref);
-                                }
-                            }
-                        } catch (Exception e) {
-                            System.err.println("Error: " + e.getMessage());
-                        }
-                        break;
-                    }
-                    case "R": {
-                        String protLine;
-                        String sequence;
-                        String ref;
-                        try {
-                            while ((protLine = br.readLine()) != null) {
-                                ref = protLine.substring(0, 14);
-                                sequence = processSequence(br);
-                                if (rabinKarpMatcher(sequence, options[1])) {
-                                    out.write(ref);
-                                }
-                            }
-                            br.close();
-                        } catch (Exception e) {
-                            System.err.println("Error: " + e.getMessage());
-                        }
-                        break;
-                    }
-
-                    case "Q": {
-                        String protLine;
-                        String sequence;
-                        String ref;
-                        String refHistory = "";
-                        int seqSize;
-                        try {
-                            while ((protLine = br.readLine()) != null) {
-                                ref = protLine.substring(0, 14);
-                                sequence = processSequence(br);
-                                for ( seqSize = 1 ; seqSize < options[1].length() + 1 ; seqSize *= 2 ) {
-                                    if (rabinKarpMatcher(sequence, options[1].substring(0, seqSize)) && !ref.equalsIgnoreCase(refHistory)) {
+                try (BufferedReader br = new BufferedReader(new FileReader(args[0]))) {
+                    switch (options[0]) {
+                        case "N": {
+                            String protLine;
+                            String sequence;
+                            String ref;
+                            try {
+                                while ((protLine = br.readLine()) != null) {
+                                    ref = protLine.substring(0, protLine.indexOf("ref"));
+                                    sequence = processSequence(br);
+                                    if (naiveMatcher(sequence, options[1])) {
                                         out.write(ref);
+                                        out.newLine();
                                     }
                                 }
-                                refHistory = ref;
+                            } catch (Exception e) {
+                                System.err.println("Error: " + e.getMessage());
                             }
-                            br.close();
-                        } catch (Exception e) {
-                            System.err.println("Error: " + e.getMessage());
+                            break;
                         }
-                        break;
-                    }
+                        case "R": {
+                            String protLine;
+                            String sequence;
+                            String ref;
+                            try {
+                                while ((protLine = br.readLine()) != null) {
+                                    ref = protLine.substring(0, protLine.indexOf("ref"));
+                                    sequence = processSequence(br);
+                                    if (rabinKarpMatcher(sequence, options[1])) {
+                                        out.write(ref);
+                                        out.newLine();
+                                    }
+                                }
+                            } catch (Exception e) {
+                                System.err.println("Error: " + e.getMessage());
+                            }
+                            break;
+                        }
 
-                    case "L": {
-                        break;
-                    }
+                        case "Q": {
+                            String protLine;
+                            String sequence;
+                            String ref;
+                            ArrayList<String> result = new ArrayList<>();
+                            int resultSize = 0;
+                            int maxPatternSize = 0;
+                            int patternSize;
+                            int begin, end;
 
-                    default: {
-                        return;
+                            try {
+                                while ((protLine = br.readLine()) != null) {
+                                    ref = protLine.substring(0, protLine.indexOf("ref"));
+                                    sequence = processSequence(br);
+                                    System.out.println(options[1]);
+                                    for (begin = 0; begin < options[1].length(); begin++) {
+                                        for (end = begin + 1; end < options[1].length() + 1; end++) {
+                                            //System.out.println(options[1].substring(begin, end));
+                                            if (rabinKarpMatcher(sequence, options[1].substring(begin, end))) {
+                                                patternSize = options[1].substring(begin, end).length();
+                                                if (patternSize > maxPatternSize) {
+                                                    maxPatternSize = patternSize;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (maxPatternSize > resultSize) {
+                                        // Remover ArrayList caso lá tenha qualquer coisa
+                                        if (resultSize != 0) {
+                                            result.clear();
+                                        }
+                                        // Adicionar novo
+                                        result.add(ref);
+                                        resultSize = maxPatternSize;
+                                    } else {
+                                        //Se for igual adicionar
+                                        if (maxPatternSize == resultSize) {
+                                            result.add(ref);
+                                        }
+                                    }
+                                    maxPatternSize = 0;
+                                }
+                                // Print results
+                                for (String s : result) {
+                                    out.write(s);
+                                    out.newLine();
+                                }
+                            } catch (Exception e) {
+                                System.err.println("Error: " + e.getMessage());
+                            }
+                            break;
+                        }
+
+                        case "L": {
+                            String protLine;
+                            String sequence;
+                            String ref;
+                            ArrayList<String> result = new ArrayList<>();
+                            int resultSize = 0;
+                            int i;
+                            int maxPatternSize = 0;
+                            int patternSize;
+                            int begin, end;
+
+                            try {
+                                while ((protLine = br.readLine()) != null) {
+                                    ref = protLine.substring(0, protLine.indexOf("ref"));
+                                    sequence = processSequence(br);
+                                    for (begin = 0; begin < options[1].length(); begin++) {
+                                        System.out.println("BU");
+                                        i = 1;
+                                        for (end = begin + i; end < options[1].length() + 1; i *= 2, end += i) {
+                                            //System.out.println(end);
+                                            //System.out.println(options[1].substring(seqSize, seqSize2));
+                                            if (rabinKarpMatcher(sequence, options[1].substring(begin, end))) {
+                                                patternSize = options[1].substring(begin, end).length();
+                                                if (patternSize > maxPatternSize) {
+                                                    maxPatternSize = patternSize;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (maxPatternSize > resultSize) {
+                                        // Remover ArrayList caso lá tenha qualquer coisa
+                                        if (resultSize != 0) {
+                                            result.clear();
+                                        }
+                                        // Adicionar novo
+                                        result.add(ref);
+                                        resultSize = maxPatternSize;
+                                    } else {
+                                        //Se for igual adicionar
+                                        if (maxPatternSize == resultSize) {
+                                            result.add(ref);
+                                        }
+                                    }
+                                    maxPatternSize = 0;
+                                }
+                                // Print results
+                                for (String s : result) {
+                                    out.write(s);
+                                    out.newLine();
+                                }
+                            } catch (Exception e) {
+                                System.err.println("Error: " + e.getMessage());
+                            }
+                            break;
+                        }
+                        default: {
+                            return;
+                        }
                     }
                 }
             }
@@ -126,7 +212,7 @@ public class Project {
             long bmModM = preCompute(_hashRPrime1, m);
             for (int i = 0; i < n - m; i++) {
                 if (textHash == patternHash) {
-                    System.out.println("pattern encontrado");
+                    //System.out.println("p : " + T.substring(i, i+m));
                     if (T.substring(i, i + m).equalsIgnoreCase(P)) {
                         return true;
                     }
@@ -136,7 +222,6 @@ public class Project {
                     textHash += _hashRPrime2;
                 }
                 textHash = (textHash * _hashRPrime1 + (textArray[i + m])) % _hashRPrime2;
-
             }
             return false;
         } catch (Exception e) {
@@ -206,4 +291,15 @@ public class Project {
         return ret;
     }
 
+    private static int powerTwo(int exponent) {
+        int result = 1;
+
+        if (exponent == 0) return 1;
+        else {
+            for (; exponent > 0; exponent--) {
+                result *= 2;
+            }
+        }
+        return result;
+    }
 }
