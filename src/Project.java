@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * @author Sergio Silva 55457
  * @author Marco Ferreira 56886
  */
-public class Project {
+public class project {
 
     private static final long _hashRB = 7;
     private static final long _hashRM = 96293;
