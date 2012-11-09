@@ -82,10 +82,8 @@ public class Project {
                                 while ((protLine = br.readLine()) != null) {
                                     ref = protLine.substring(0, protLine.indexOf("ref"));
                                     sequence = processSequence(br);
-                                    System.out.println(options[1]);
                                     for (begin = 0; begin < options[1].length(); begin++) {
                                         for (end = begin + 1; end < options[1].length() + 1; end++) {
-                                            //System.out.println(options[1].substring(begin, end));
                                             if (rabinKarpMatcher(sequence, options[1].substring(begin, end))) {
                                                 patternSize = options[1].substring(begin, end).length();
                                                 if (patternSize > maxPatternSize) {
@@ -129,17 +127,17 @@ public class Project {
                             int resultSize = 0;
                             int i;
                             int maxPatternSize = 0;
-                            int patternSize = 1;
+                            int patternSize = 0;
+                            int patternHold, endHold;
                             int begin, end;
 
                             try {
                                 while ((protLine = br.readLine()) != null) {
                                     ref = protLine.substring(0, protLine.indexOf("ref"));
                                     sequence = processSequence(br);
-                                    for (begin = 0; begin < options[1].length(); begin++) {
+                                    for (begin = 0; begin < options[1].length() + 1; begin++) {
                                         i = 1;
-                                        for (end = begin + i; end < options[1].length() + 1; i *= 2, end += i) {
-                                            //System.out.println(end);
+                                        for (end = begin + i; end < options[1].length() + 1; i *= 2, end = begin + i) {
                                             if (rabinKarpMatcher(sequence, options[1].substring(begin, end))) {
                                                 patternSize = options[1].substring(begin,end).length();
                                                 if (patternSize > maxPatternSize) {
@@ -147,19 +145,20 @@ public class Project {
                                                 }
                                             } else {
                                                 if (patternSize > 2) {
-                                                    for (end = patternSize + 1 ; end < options[1].length() + 1 ; end++ ) {
-                                                        if (rabinKarpMatcher(sequence, options[1].substring(begin,end))) {
-                                                            patternSize = options[1].substring(begin,end).length();
+                                                    patternHold = patternSize;
+                                                    for (endHold = begin + patternHold + 1 ; endHold < begin + patternHold * 2 + 1; endHold++ ) {
+                                                        if (rabinKarpMatcher(sequence, options[1].substring(begin,endHold))) {
+                                                            patternSize = options[1].substring(begin,endHold).length();
                                                             if (patternSize > maxPatternSize) {
-                                                                maxPatternSize = patternSize;
                                                             }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
-                                        if (end > options[1].length() && patternSize*2 == end) {
-                                            for (end = patternSize + 1 ; end < options[1].length() + 1 ; end++ ) {
+                                        if (end > options[1].length() && (patternSize * 2 == end)) {
+                                            for (end = begin + patternSize + 1 ; end < begin + patternSize * 2 ; end++ ) {
+                                                System.out.println(options[1].substring(begin,end));
                                                 if (rabinKarpMatcher(sequence, options[1].substring(begin,end))) {
                                                     patternSize = options[1].substring(begin,end).length();
                                                     if (patternSize > maxPatternSize) {
@@ -232,7 +231,6 @@ public class Project {
             long bmModM = preCompute(_hashRPrime1, m);
             for (int i = 0; i < n - m; i++) {
                 if (textHash == patternHash) {
-                    //System.out.println("p : " + T.substring(i, i+m));
                     if (T.substring(i, i + m).equalsIgnoreCase(P)) {
                         return true;
                     }
@@ -309,17 +307,5 @@ public class Project {
             ret *= b;
         }
         return ret;
-    }
-
-    private static int powerTwo(int exponent) {
-        int result = 1;
-
-        if (exponent == 0) return 1;
-        else {
-            for (; exponent > 0; exponent--) {
-                result *= 2;
-            }
-        }
-        return result;
     }
 }
