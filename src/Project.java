@@ -129,7 +129,7 @@ public class Project {
                             int resultSize = 0;
                             int i;
                             int maxPatternSize = 0;
-                            int patternSize;
+                            int patternSize = 1;
                             int begin, end;
 
                             try {
@@ -146,9 +146,8 @@ public class Project {
                                                     maxPatternSize = patternSize;
                                                 }
                                             } else {
-                                                if (maxPatternSize > 2) {
-                                                    for (end = maxPatternSize + 1 ; end < options[1].length() + 1 ; end++ ) {
-                                                        System.out.println(options[1].substring(begin, end));
+                                                if (patternSize > 2) {
+                                                    for (end = patternSize + 1 ; end < options[1].length() + 1 ; end++ ) {
                                                         if (rabinKarpMatcher(sequence, options[1].substring(begin,end))) {
                                                             patternSize = options[1].substring(begin,end).length();
                                                             if (patternSize > maxPatternSize) {
@@ -159,8 +158,8 @@ public class Project {
                                                 }
                                             }
                                         }
-                                        if (end > options[1].length() && maxPatternSize*2 == end) {
-                                            for (end = maxPatternSize + 1 ; end < options[1].length() + 1 ; end++ ) {
+                                        if (end > options[1].length() && patternSize*2 == end) {
+                                            for (end = patternSize + 1 ; end < options[1].length() + 1 ; end++ ) {
                                                 if (rabinKarpMatcher(sequence, options[1].substring(begin,end))) {
                                                     patternSize = options[1].substring(begin,end).length();
                                                     if (patternSize > maxPatternSize) {
