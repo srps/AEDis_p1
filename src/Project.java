@@ -10,10 +10,10 @@ import java.util.ArrayList;
  */
 public class Project {
 
-    private static long _hashRPrime1 = 2;
-    private static long _hashRPrime2 = 96293;
-    private int tempB = 3;
-    private int tempM = 96293;
+    private static final long _hashRB = 7;
+    private static final long _hashRM = 96293;
+    private static final long _hashQB = 2;
+    private static final long _hashQM = 96293;
 
     /**
      * @param args the command line arguments
@@ -57,7 +57,7 @@ public class Project {
                                 while ((protLine = br.readLine()) != null) {
                                     ref = protLine.substring(0, protLine.indexOf("ref"));
                                     sequence = processSequence(br);
-                                    if (rabinKarpMatcher(sequence, options[1])) {
+                                    if (rabinKarpMatcher(sequence, options[1], _hashRB, _hashRM)) {
                                         out.write(ref);
                                         out.newLine();
                                     }
@@ -84,7 +84,7 @@ public class Project {
                                     sequence = processSequence(br);
                                     for (begin = 0; begin < options[1].length(); begin++) {
                                         for (end = begin + 1; end < options[1].length() + 1; end++) {
-                                            if (rabinKarpMatcher(sequence, options[1].substring(begin, end))) {
+                                            if (rabinKarpMatcher(sequence, options[1].substring(begin,end), _hashQB, _hashQM)) {
                                                 patternSize = options[1].substring(begin, end).length();
                                                 if (patternSize > maxPatternSize) {
                                                     maxPatternSize = patternSize;
@@ -138,7 +138,7 @@ public class Project {
                                     for (begin = 0; begin < options[1].length() + 1; begin++) {
                                         i = 1;
                                         for (end = begin + i; end < options[1].length() + 1; i *= 2, end = begin + i) {
-                                            if (rabinKarpMatcher(sequence, options[1].substring(begin, end))) {
+                                            if (rabinKarpMatcher(sequence, options[1].substring(begin,end), _hashQB, _hashQM)) {
                                                 patternSize = options[1].substring(begin,end).length();
                                                 if (patternSize > maxPatternSize) {
                                                     maxPatternSize = patternSize;
@@ -147,7 +147,7 @@ public class Project {
                                                 if (patternSize > 2) {
                                                     patternHold = patternSize;
                                                     for (endHold = begin + patternHold + 1 ; endHold < begin + patternHold * 2 + 1; endHold++ ) {
-                                                        if (rabinKarpMatcher(sequence, options[1].substring(begin,endHold))) {
+                                                        if (rabinKarpMatcher(sequence, options[1].substring(begin,end), _hashQB, _hashQM)) {
                                                             patternSize = options[1].substring(begin,endHold).length();
                                                             if (patternSize > maxPatternSize) {
                                                             }
@@ -159,7 +159,7 @@ public class Project {
                                         if (end > options[1].length() && (patternSize * 2 == end)) {
                                             for (end = begin + patternSize + 1 ; end < begin + patternSize * 2 ; end++ ) {
                                                 System.out.println(options[1].substring(begin,end));
-                                                if (rabinKarpMatcher(sequence, options[1].substring(begin,end))) {
+                                                if (rabinKarpMatcher(sequence, options[1].substring(begin,end), _hashQB, _hashQM)) {
                                                     patternSize = options[1].substring(begin,end).length();
                                                     if (patternSize > maxPatternSize) {
                                                         maxPatternSize = patternSize;
@@ -221,14 +221,14 @@ public class Project {
         return false;
     }
 
-    private static boolean rabinKarpMatcher(String T, String P) {
+    private static boolean rabinKarpMatcher(String T, String P, long B, long M) {
         try {
             int n = T.length();
             int m = P.length();
-            long patternHash = hashR(P, _hashRPrime1, _hashRPrime2);
-            long textHash = hashR(T.substring(0, m), _hashRPrime1, _hashRPrime2);
+            long patternHash = hashR(P, B, M);
+            long textHash = hashR(T.substring(0, m), B, M);
             char[] textArray = T.toCharArray();
-            long bmModM = preCompute(_hashRPrime1, m);
+            long bmModM = preCompute(B, m);
             for (int i = 0; i < n - m; i++) {
                 if (textHash == patternHash) {
                     if (T.substring(i, i + m).equalsIgnoreCase(P)) {
@@ -237,9 +237,9 @@ public class Project {
                 }
                 textHash -= textArray[i] * bmModM;
                 while (textHash < 0) {
-                    textHash += _hashRPrime2;
+                    textHash += M;
                 }
-                textHash = (textHash * _hashRPrime1 + (textArray[i + m])) % _hashRPrime2;
+                textHash = (textHash * B + (textArray[i + m])) % M;
             }
             return false;
         } catch (Exception e) {
